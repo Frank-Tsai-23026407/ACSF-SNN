@@ -8,6 +8,21 @@ In recent years, spiking neural networks (SNNs) have been used in reinforcement 
 
 <img src="figures/Structure.png" align="middle" width="1000" border="1"/>
 
+## Project Structure
+
+The project is organized as follows:
+
+- `main.py`: The main entry point for training and evaluating models.
+- `BehavioralCloning.py`: A script for training a simple behavioral cloning agent.
+- `algorithms/`: A directory containing implementations of various reinforcement learning algorithms.
+- `tools/`: A directory containing utility scripts for testing models, generating videos, and managing the replay buffer.
+- `figures/`: A directory containing figures used in the README.
+- `scripts/`: A directory containing shell scripts for running experiments.
+- `models/`: A directory where trained models are saved.
+- `buffers/`: A directory where replay buffers are saved.
+- `results/`: A directory where evaluation results are saved.
+- `videos/`: A directory where videos of trained agents are saved.
+
 ## Dependences
 
 ``` Bash

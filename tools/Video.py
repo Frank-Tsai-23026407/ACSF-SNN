@@ -1,3 +1,6 @@
+"""
+This script is used to generate videos of the trained models.
+"""
 import gym
 import sys
 from gym import wrappers

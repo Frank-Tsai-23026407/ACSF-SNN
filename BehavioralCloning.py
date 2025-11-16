@@ -1,3 +1,6 @@
+"""
+This script is used to train a simple behavioral cloning agent.
+"""
 from tools import utils
 import argparse
 import gym
@@ -7,7 +10,18 @@ import torch.nn as nn
 
 
 class BC(nn.Module):
+    """
+    This class implements a simple Behavioral Cloning model.
+    """
     def __init__(self, state_dim, action_dim, max_action):
+        """
+        Initializes the Behavioral Cloning model.
+
+        Args:
+            state_dim (int): The dimension of the state space.
+            action_dim (int): The dimension of the action space.
+            max_action (float): The maximum action value.
+        """
         super(BC, self).__init__()
         self.l1 = nn.Linear(state_dim, 400)
         self.l2 = nn.Linear(400, 300)
@@ -15,6 +29,15 @@ class BC(nn.Module):
         self.max_action = max_action
 
     def forward(self, state):
+        """
+        Defines the forward pass of the Behavioral Cloning model.
+
+        Args:
+            state: The input state.
+
+        Returns:
+            The output action.
+        """
         a = torch.tanh(self.l1(state))
         a = torch.tanh(self.l2(a))
         a = self.max_action * torch.tanh(self.l3(a))
@@ -22,6 +45,18 @@ class BC(nn.Module):
 
 
 def eval_policy(net, env_name, seed, eval_episodes=10):
+    """
+    Evaluates the policy.
+
+    Args:
+        net: The network to evaluate.
+        env_name (str): The name of the environment.
+        seed (int): The seed for the environment.
+        eval_episodes (int, optional): The number of episodes to evaluate for. Defaults to 10.
+
+    Returns:
+        (float, torch.Tensor): The mean reward and the reward for each episode.
+    """
     eval_env = gym.make(env_name)
     eval_env.seed(seed + 100)
     reward_all = torch.zeros(eval_episodes)

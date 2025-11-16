@@ -1,3 +1,6 @@
+"""
+This script implements the original Batch-Constrained Q-Learning (BCQ) algorithm.
+"""
 import copy
 import numpy as np
 import torch
@@ -6,6 +9,15 @@ import torch.nn.functional as F
 
 
 class Actor(nn.Module):
+    """
+    The Actor network for the original BCQ algorithm.
+
+    Args:
+        state_dim (int): The dimension of the state space.
+        action_dim (int): The dimension of the action space.
+        max_action (float): The maximum action value.
+        phi (float, optional): The perturbation hyper-parameter. Defaults to 0.05.
+    """
     def __init__(self, state_dim, action_dim, max_action, phi=0.05):
         super(Actor, self).__init__()
         self.l1 = nn.Linear(state_dim + action_dim, 400)
@@ -23,6 +35,13 @@ class Actor(nn.Module):
 
 
 class Critic(nn.Module):
+    """
+    The Critic network for the original BCQ algorithm.
+
+    Args:
+        state_dim (int): The dimension of the state space.
+        action_dim (int): The dimension of the action space.
+    """
     def __init__(self, state_dim, action_dim):
         super(Critic, self).__init__()
         self.l1 = nn.Linear(state_dim + action_dim, 400)
@@ -52,6 +71,16 @@ class Critic(nn.Module):
 
 # Vanilla Variational Auto-Encoder
 class VAE(nn.Module):
+    """
+    The Variational Auto-Encoder (VAE) for the original BCQ algorithm.
+
+    Args:
+        state_dim (int): The dimension of the state space.
+        action_dim (int): The dimension of the action space.
+        latent_dim (int): The dimension of the latent space.
+        max_action (float): The maximum action value.
+        device: The device to run the models on.
+    """
     def __init__(self, state_dim, action_dim, latent_dim, max_action, device):
         super(VAE, self).__init__()
         self.e1 = nn.Linear(state_dim + action_dim, 750)
@@ -93,6 +122,19 @@ class VAE(nn.Module):
 
 
 class BCQ(object):
+    """
+    The Batch-Constrained Q-Learning (BCQ) algorithm.
+
+    Args:
+        state_dim (int): The dimension of the state space.
+        action_dim (int): The dimension of the action space.
+        max_action (float): The maximum action value.
+        device: The device to run the models on.
+        discount (float, optional): The discount factor. Defaults to 0.99.
+        tau (float, optional): The target network update rate. Defaults to 0.005.
+        lmbda (float, optional): The weighting for clipped double Q-learning. Defaults to 0.75.
+        phi (float, optional): The perturbation hyper-parameter. Defaults to 0.05.
+    """
     def __init__(self, state_dim, action_dim, max_action, device, discount=0.99, tau=0.005, lmbda=0.75, phi=0.05):
         latent_dim = action_dim * 2
 
