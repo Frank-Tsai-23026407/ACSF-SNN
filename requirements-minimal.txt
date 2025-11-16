@@ -1,0 +1,37 @@
+# Core requirements for ACSF-SNN
+# Python 3.9 required
+
+# Deep Learning
+torch==2.0.1
+torchvision==0.15.2
+torchaudio==2.0.2
+
+# SNN Framework
+spikingjelly==0.0.0.0.14
+
+# RL Environment
+gym==0.26.2
+cloudpickle>=1.2.0
+
+# MuJoCo
+mujoco-py==2.1.2.14
+Cython<3
+
+# Scientific Computing
+numpy==1.23.5
+scipy==1.11.1
+
+# Visualization & Logging
+matplotlib>=3.5.0
+opencv-python>=4.5.0
+imageio>=2.16.0
+tqdm>=4.63.0
+
+# Utilities
+pyyaml>=6.0
+pillow>=9.0.0
+pyglet>=1.5.0
+glfw>=2.5.0
+
+# Note: gym 0.26.2 uses new API, requires gym_compat.py for compatibility
+# Note: Install order matters - install Cython and numpy before mujoco-py

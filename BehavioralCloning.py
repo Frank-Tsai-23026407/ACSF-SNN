@@ -1,6 +1,7 @@
 """
 This script is used to train a simple behavioral cloning agent.
 """
+import gym_compat  # Compatibility layer for gym 0.26+
 from tools import utils
 import argparse
 import gym

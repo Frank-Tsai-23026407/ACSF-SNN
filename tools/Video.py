@@ -1,6 +1,10 @@
 """
 This script is used to generate videos of the trained models.
 """
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import gym_compat  # Compatibility layer for gym 0.26+
 import gym
 import sys
 from gym import wrappers

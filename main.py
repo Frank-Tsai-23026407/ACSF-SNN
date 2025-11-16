@@ -1,6 +1,7 @@
 """
 This script is the main entry point for training and evaluating the ACSF-SNN models.
 """
+import gym_compat  # Compatibility layer for gym 0.26+
 import argparse
 import gym
 import numpy as np
@@ -159,16 +160,44 @@ def train_SpikingBCQ(state_dim, action_dim, max_action, device, args):
 								args.phi, args.T)
 	# Load buffer
 	replay_buffer = utils.ReplayBuffer(state_dim, action_dim, device)
+
+	# Prefer locally generated buffers under ./buffers, with graceful fallbacks to lab paths
+	def _try_load(candidates):
+		for base in candidates:
+			if os.path.exists(f"{base}_reward.npy"):
+				replay_buffer.load(base)
+				print("load buffer:", base)
+				return True
+		return False
+
+	loaded = False
 	if args.buffer == "DDPG_9853":
-		replay_buffer.load(f"/data3/ql/buffers/DDPG_Buffer_9853/{buffer_name}")
+		# Local naming used by generate_buffer: ./buffers/{buffer_name} (e.g., ./buffers/Robust_Ant-v3_9853)
+		local_name = f"./buffers/{buffer_name}"
+		lab_name = f"/data3/ql/buffers/DDPG_Buffer_9853/{buffer_name}"
+		loaded = _try_load([local_name, lab_name])
 	elif args.buffer == "DDPG_0":
 		buffer_name = f"{args.buffer_name}_{args.env}_0"
-		replay_buffer.load(f"/data3/ql/buffers/DDPG_Buffer_0/{buffer_name}")
+		local_name = f"./buffers/{buffer_name}"
+		lab_name = f"/data3/ql/buffers/DDPG_Buffer_0/{buffer_name}"
+		loaded = _try_load([local_name, lab_name])
 	elif args.buffer == "TD3":
-		buffer_name = f"{args.buffer_name}_TD3_{args.env}_9853"
-		replay_buffer.load(f"/data3/ql/buffers/TD3_Buffer/{buffer_name}")
+		# Some datasets are named with and without the "TD3" token; try both locally
+		candidate_local = [
+			f"./buffers/{args.buffer_name}_{args.env}_{args.seed}",
+			f"./buffers/{args.buffer_name}_TD3_{args.env}_9853",
+		]
+		candidate_lab = [
+			f"/data3/ql/buffers/TD3_Buffer/{args.buffer_name}_TD3_{args.env}_9853",
+		]
+		loaded = _try_load(candidate_local + candidate_lab)
+
+	if not loaded:
+		raise FileNotFoundError(
+			f"Replay buffer not found. Looked for local ./buffers/* and lab paths for '{args.buffer}'. "
+			f"Consider generating a buffer with '--generate_buffer' or copying it into ./buffers/."
+		)
 	mean, std = 0, 1
-	print("load buffer:", buffer_name)
 	evaluations = []
 	episode_num = 0
 	done = True
