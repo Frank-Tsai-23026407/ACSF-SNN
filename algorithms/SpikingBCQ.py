@@ -1,3 +1,6 @@
+"""
+This script implements the Spiking Batch-Constrained Q-Learning (BCQ) algorithm.
+"""
 import copy
 import numpy as np
 import torch
@@ -7,6 +10,9 @@ from spikingjelly.clock_driven import layer, neuron, surrogate, functional
 
 
 class NonSpikingLIFNode(neuron.MultiStepLIFNode):
+    """
+    A non-spiking Leaky Integrate-and-Fire (LIF) neuron model.
+    """
     def forward(self, dv: torch.Tensor):
         self.neuronal_charge(dv)
         # self.neuronal_fire()
@@ -15,6 +21,20 @@ class NonSpikingLIFNode(neuron.MultiStepLIFNode):
 
 
 class Actor(nn.Module):
+    """
+    The Actor network for the Spiking BCQ algorithm.
+
+    Args:
+        state_dim (int): The dimension of the state space.
+        action_dim (int): The dimension of the action space.
+        max_action (float): The maximum action value.
+        phi (float, optional): The perturbation hyper-parameter. Defaults to 0.05.
+        T (int, optional): The number of time steps. Defaults to 32.
+        tau (float, optional): The time constant. Defaults to 2.0.
+        alpha (float, optional): The alpha parameter for the surrogate function. Defaults to 2.0.
+        v_threshold (float, optional): The voltage threshold. Defaults to 1.0.
+        v_reset (float, optional): The voltage reset value. Defaults to 0.0.
+    """
     def __init__(self, state_dim, action_dim, max_action, phi=0.05, T=32, tau=2.0, alpha=2.0, v_threshold=1.0,
                  v_reset=0.0):
         super(Actor, self).__init__()
@@ -45,6 +65,18 @@ class Actor(nn.Module):
 
 
 class Critic(nn.Module):
+    """
+    The Critic network for the Spiking BCQ algorithm.
+
+    Args:
+        state_dim (int): The dimension of the state space.
+        action_dim (int): The dimension of the action space.
+        T (int, optional): The number of time steps. Defaults to 32.
+        tau (float, optional): The time constant. Defaults to 2.0.
+        alpha (float, optional): The alpha parameter for the surrogate function. Defaults to 2.0.
+        v_threshold (float, optional): The voltage threshold. Defaults to 1.0.
+        v_reset (float, optional): The voltage reset value. Defaults to 0.0.
+    """
     def __init__(self, state_dim, action_dim, T=32, tau=2.0, alpha=2.0, v_threshold=1.0, v_reset=0.0):
         super(Critic, self).__init__()
         self.T = T
@@ -95,6 +127,21 @@ class Critic(nn.Module):
 
 # Vanilla Variational Auto-Encoder
 class VAE(nn.Module):
+    """
+    The Variational Auto-Encoder (VAE) for the Spiking BCQ algorithm.
+
+    Args:
+        state_dim (int): The dimension of the state space.
+        action_dim (int): The dimension of the action space.
+        latent_dim (int): The dimension of the latent space.
+        max_action (float): The maximum action value.
+        device: The device to run the models on.
+        T (int, optional): The number of time steps. Defaults to 32.
+        tau (float, optional): The time constant. Defaults to 2.0.
+        alpha (float, optional): The alpha parameter for the surrogate function. Defaults to 2.0.
+        v_threshold (float, optional): The voltage threshold. Defaults to 1.0.
+        v_reset (float, optional): The voltage reset value. Defaults to 0.0.
+    """
     def __init__(self, state_dim, action_dim, latent_dim, max_action, device, T=32, tau=2.0, alpha=2.0, v_threshold=1.0,
                  v_reset=0.0):
         super(VAE, self).__init__()
@@ -159,6 +206,20 @@ class VAE(nn.Module):
 
 
 class BCQ(object):
+    """
+    The Spiking Batch-Constrained Q-Learning (BCQ) algorithm.
+
+    Args:
+        state_dim (int): The dimension of the state space.
+        action_dim (int): The dimension of the action space.
+        max_action (float): The maximum action value.
+        device: The device to run the models on.
+        discount (float, optional): The discount factor. Defaults to 0.99.
+        tau (float, optional): The target network update rate. Defaults to 0.005.
+        lmbda (float, optional): The weighting for clipped double Q-learning. Defaults to 0.75.
+        phi (float, optional): The perturbation hyper-parameter. Defaults to 0.05.
+        T (int, optional): The number of time steps. Defaults to 32.
+    """
     def __init__(self, state_dim, action_dim, max_action, device, discount=0.99, tau=0.005, lmbda=0.75,
                  phi=0.05, T=32):
         latent_dim = action_dim * 2

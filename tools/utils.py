@@ -1,8 +1,20 @@
+"""
+This script contains utility functions and classes for the project.
+"""
 import numpy as np
 import torch
 
 
 class ReplayBuffer(object):
+	"""
+	A replay buffer for storing and sampling transitions.
+
+	Args:
+		state_dim (int): The dimension of the state space.
+		action_dim (int): The dimension of the action space.
+		device: The device to run the models on.
+		max_size (int, optional): The maximum size of the buffer. Defaults to int(1e6).
+	"""
 	def __init__(self, state_dim, action_dim, device, max_size=int(1e6)):
 		self.max_size = max_size
 		self.ptr = 0
@@ -17,6 +29,16 @@ class ReplayBuffer(object):
 		self.device = device
 
 	def add(self, state, action, next_state, reward, done):
+		"""
+		Adds a transition to the buffer.
+
+		Args:
+			state: The state.
+			action: The action.
+			next_state: The next state.
+			reward: The reward.
+			done (bool): Whether the episode is done.
+		"""
 		self.state[self.ptr] = state
 		self.action[self.ptr] = action
 		self.next_state[self.ptr] = next_state
@@ -27,6 +49,15 @@ class ReplayBuffer(object):
 		self.size = min(self.size + 1, self.max_size)
 
 	def sample(self, batch_size):
+		"""
+		Samples a batch of transitions from the buffer.
+
+		Args:
+			batch_size (int): The batch size.
+
+		Returns:
+			(torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor): A tuple of tensors containing the states, actions, next states, rewards, and not_dones.
+		"""
 		ind = np.random.randint(0, self.size, size=batch_size)
 
 		return (
@@ -38,10 +69,22 @@ class ReplayBuffer(object):
 		)
 
 	def AESample(self):
+		"""
+		Samples all the states and actions from the buffer.
+
+		Returns:
+			(torch.Tensor, torch.Tensor): A tuple of tensors containing the states and actions.
+		"""
 		return (torch.FloatTensor(self.state).to(self.device),
 			torch.FloatTensor(self.action).to(self.device))
 
 	def convert_D4RL(self, dataset):
+		"""
+		Converts a D4RL dataset to the replay buffer format.
+
+		Args:
+			dataset: The D4RL dataset.
+		"""
 		self.state = dataset['observations']
 		self.action = dataset['actions']
 		self.next_state = dataset['next_observations']
@@ -50,6 +93,12 @@ class ReplayBuffer(object):
 		self.size = self.state.shape[0]
 
 	def save(self, save_folder):
+		"""
+		Saves the replay buffer to a folder.
+
+		Args:
+			save_folder (str): The folder to save the buffer to.
+		"""
 		np.save(f"{save_folder}_state.npy", self.state[:self.size])
 		np.save(f"{save_folder}_action.npy", self.action[:self.size])
 		np.save(f"{save_folder}_next_state.npy", self.next_state[:self.size])
@@ -58,6 +107,13 @@ class ReplayBuffer(object):
 		np.save(f"{save_folder}_ptr.npy", self.ptr)
 
 	def load(self, save_folder, size=-1):
+		"""
+		Loads a replay buffer from a folder.
+
+		Args:
+			save_folder (str): The folder to load the buffer from.
+			size (int, optional): The size of the buffer to load. Defaults to -1.
+		"""
 		reward_buffer = np.load(f"{save_folder}_reward.npy")
 		
 		# Adjust crt_size if we're using a custom size
@@ -71,6 +127,15 @@ class ReplayBuffer(object):
 		self.not_done[:self.size] = np.load(f"{save_folder}_not_done.npy")[:self.size]
 
 	def normalize_states(self, eps=1e-3):
+		"""
+		Normalizes the states in the buffer.
+
+		Args:
+			eps (float, optional): A small value to avoid division by zero. Defaults to 1e-3.
+
+		Returns:
+			(np.ndarray, np.ndarray): The mean and standard deviation of the states.
+		"""
 		mean = self.state.mean(0, keepdims=True)
 		std = self.state.std(0, keepdims=True) + eps
 		self.state = (self.state - mean) / std

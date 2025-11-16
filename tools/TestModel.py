@@ -1,3 +1,6 @@
+"""
+This script is used to test the trained models.
+"""
 import argparse
 import numpy as np
 import torch
@@ -10,6 +13,18 @@ from algorithms import OriBCQ
 
 
 def eval_policy(policy, env_name, seed, eval_episodes=10):
+    """
+    Evaluates the policy.
+
+    Args:
+        policy: The policy to evaluate.
+        env_name (str): The name of the environment.
+        seed (int): The seed for the environment.
+        eval_episodes (int, optional): The number of episodes to evaluate for. Defaults to 10.
+
+    Returns:
+        float: The mean reward.
+    """
     reward_all = torch.zeros(10)
     for i in range(10):
         eval_env = gym.make(env_name)

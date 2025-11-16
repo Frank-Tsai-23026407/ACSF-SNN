@@ -1,3 +1,6 @@
+"""
+This script implements the Deep Deterministic Policy Gradient (DDPG) algorithm.
+"""
 import copy
 import numpy as np
 import torch
@@ -10,6 +13,14 @@ import torch.nn.functional as F
 
 
 class Actor(nn.Module):
+	"""
+	The Actor network for the DDPG algorithm.
+
+	Args:
+		state_dim (int): The dimension of the state space.
+		action_dim (int): The dimension of the action space.
+		max_action (float): The maximum action value.
+	"""
 	def __init__(self, state_dim, action_dim, max_action):
 		super(Actor, self).__init__()
 
@@ -26,6 +37,13 @@ class Actor(nn.Module):
 
 
 class Critic(nn.Module):
+	"""
+	The Critic network for the DDPG algorithm.
+
+	Args:
+		state_dim (int): The dimension of the state space.
+		action_dim (int): The dimension of the action space.
+	"""
 	def __init__(self, state_dim, action_dim):
 		super(Critic, self).__init__()
 
@@ -40,6 +58,17 @@ class Critic(nn.Module):
 
 
 class DDPG(object):
+	"""
+	The Deep Deterministic Policy Gradient (DDPG) algorithm.
+
+	Args:
+		state_dim (int): The dimension of the state space.
+		action_dim (int): The dimension of the action space.
+		max_action (float): The maximum action value.
+		device: The device to run the models on.
+		discount (float, optional): The discount factor. Defaults to 0.99.
+		tau (float, optional): The target network update rate. Defaults to 0.005.
+	"""
 	def __init__(self, state_dim, action_dim, max_action, device, discount=0.99, tau=0.005):
 		self.actor = Actor(state_dim, action_dim, max_action).to(device)
 		self.actor_target = copy.deepcopy(self.actor)

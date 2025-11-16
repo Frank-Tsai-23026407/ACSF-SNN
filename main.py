@@ -1,3 +1,6 @@
+"""
+This script is the main entry point for training and evaluating the ACSF-SNN models.
+"""
 import argparse
 import gym
 import numpy as np
@@ -18,8 +21,17 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-# Handles interactions with the environment, i.e. train behavioral or generate buffer
 def interact_with_environment(env, state_dim, action_dim, max_action, device, args):
+	"""Handles interactions with the environment, i.e. train behavioral or generate buffer.
+
+	Args:
+		env: The gym environment.
+		state_dim (int): The dimension of the state space.
+		action_dim (int): The dimension of the action space.
+		max_action (float): The maximum action value.
+		device: The device to run the models on.
+		args: The command line arguments.
+	"""
 	# For saving files
 	setting = f'{args.env}_{args.seed}'
 	buffer_name = f'{args.buffer_name}_{setting}'
@@ -118,6 +130,15 @@ def interact_with_environment(env, state_dim, action_dim, max_action, device, ar
 
 
 def train_SpikingBCQ(state_dim, action_dim, max_action, device, args):
+	"""Trains the Spiking BCQ model.
+
+	Args:
+		state_dim (int): The dimension of the state space.
+		action_dim (int): The dimension of the action space.
+		max_action (float): The maximum action value.
+		device: The device to run the models on.
+		args: The command line arguments.
+	"""
 	# For saving files
 	setting = f"{args.env}_{args.seed}"
 	buffer_name = f"{args.buffer_name}_{args.env}_9853"
@@ -170,9 +191,22 @@ def train_SpikingBCQ(state_dim, action_dim, max_action, device, args):
 	print("---------------------------------------")
 	print(max_reward_all)
 
-# Runs policy for X episodes and returns average reward
-# A fixed seed is used for the eval environment
+
 def eval_policy(policy, env_name, seed, mean=0, std=1, eval_episodes=10):
+	"""Runs policy for X episodes and returns average reward.
+	A fixed seed is used for the eval environment.
+
+	Args:
+		policy: The policy to evaluate.
+		env_name (str): The name of the environment.
+		seed (int): The seed for the environment.
+		mean (float, optional): The mean to normalize the states. Defaults to 0.
+		std (float, optional): The standard deviation to normalize the states. Defaults to 1.
+		eval_episodes (int, optional): The number of episodes to evaluate. Defaults to 10.
+
+	Returns:
+		(float, torch.Tensor): The mean reward and the reward for each episode.
+	"""
 	eval_env = gym.make(env_name)
 	eval_env.seed(seed + 100)
 	reward_all = torch.zeros(eval_episodes)

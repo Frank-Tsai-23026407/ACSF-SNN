@@ -1,3 +1,6 @@
+"""
+This script implements the Adaptive Coding BCQ algorithm with an Artificial Neural Network (ANN).
+"""
 import copy
 import numpy as np
 import torch
@@ -6,6 +9,16 @@ import torch.nn.functional as F
 
 
 class Actor(nn.Module):
+    """
+    The Actor network for the AC-BCQ-ANN algorithm.
+
+    Args:
+        state_dim (int): The dimension of the state space.
+        action_dim (int): The dimension of the action space.
+        max_action (float): The maximum action value.
+        phi (float, optional): The perturbation hyper-parameter. Defaults to 0.05.
+        T (int, optional): The number of time steps. Defaults to 4.
+    """
     def __init__(self, state_dim, action_dim, max_action, phi=0.05, T=4):
         super(Actor, self).__init__()
         self.encoder = nn.Linear(state_dim + action_dim, (state_dim + action_dim) * T)
@@ -25,6 +38,14 @@ class Actor(nn.Module):
 
 
 class Critic(nn.Module):
+    """
+    The Critic network for the AC-BCQ-ANN algorithm.
+
+    Args:
+        state_dim (int): The dimension of the state space.
+        action_dim (int): The dimension of the action space.
+        T (int, optional): The number of time steps. Defaults to 4.
+    """
     def __init__(self, state_dim, action_dim, T=4):
         super(Critic, self).__init__()
         self.encoder1 = nn.Linear(state_dim + action_dim, (state_dim + action_dim) * T)
@@ -58,6 +79,16 @@ class Critic(nn.Module):
 
 # Vanilla Variational Auto-Encoder
 class VAE(nn.Module):
+    """
+    The Variational Auto-Encoder (VAE) for the AC-BCQ-ANN algorithm.
+
+    Args:
+        state_dim (int): The dimension of the state space.
+        action_dim (int): The dimension of the action space.
+        latent_dim (int): The dimension of the latent space.
+        max_action (float): The maximum action value.
+        device: The device to run the models on.
+    """
     def __init__(self, state_dim, action_dim, latent_dim, max_action, device):
         super(VAE, self).__init__()
         self.e1 = nn.Linear(state_dim + action_dim, 750)
@@ -99,6 +130,20 @@ class VAE(nn.Module):
 
 
 class BCQ(object):
+    """
+    The Batch-Constrained Q-Learning (BCQ) algorithm.
+
+    Args:
+        state_dim (int): The dimension of the state space.
+        action_dim (int): The dimension of the action space.
+        max_action (float): The maximum action value.
+        device: The device to run the models on.
+        discount (float, optional): The discount factor. Defaults to 0.99.
+        tau (float, optional): The target network update rate. Defaults to 0.005.
+        lmbda (float, optional): The weighting for clipped double Q-learning. Defaults to 0.75.
+        phi (float, optional): The perturbation hyper-parameter. Defaults to 0.05.
+        T (int, optional): The number of time steps. Defaults to 4.
+    """
     def __init__(self, state_dim, action_dim, max_action, device, discount=0.99, tau=0.005, lmbda=0.75, phi=0.05, T=4):
         latent_dim = action_dim * 2
 
